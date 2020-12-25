@@ -1,28 +1,141 @@
 var nomeJogador;
 var caminho = '0';
+var gameDiv = document.getElementById('bottomContainer');
+var preText = document.getElementById('scrollItem');
 
 function startUp(){
     alert("Recomendamos que jogue em modo tela-cheia (F11). Boa sorte.");
 }
 
-function receberDados(){
-    nomeJogador = prompt("Qual é seu nome?");;
-    alert("Designação " + nomeJogador.toUpperCase() + ", Setor 34");
+function createDiv(){
+    var div = document.createElement('div');
+    return div;
 }
 
-startUp();
-receberDados();
+function createParagraph(text){
+    var finalText = [];                                     // Array containing various <p> and <br> tags
+    var lastIndex = 0;                                      // Last time a linebreak was detected
+    var newText = "";                                       // Text content of a particular <p> tag
+    var end = false;                                        // Ending variable
+    for(var i = 0; end == false; i++){                      // Running indefinitely
+        newText = ""                                        // Reset text content at start of loop
+        for(var j = lastIndex; j < text.length; j++){       // Running through all of the text
+            if(j == text.length - 1){                       // Checking if it's the final character in the text
+                end = true;
+            }
+            if(text[j] != "\n"){                            // Checking if a break has not yet been found
+                newText += text[j];
+            }
+            else{                                           // In case a break is found...
+                lastIndex = j + 1;                          // Save location for next text search
+                break;
+            }
+        }
+        if(newText != ""){                                  // Checking if newText isn't empty
+            finalText[i] = document.createElement('p');     // Create <p> element, add it
+            finalText[i].setAttribute("class", "choice");   // Format the <p> element
+            finalText[i].textContent = newText;             // Add text so far to <p>
+            i++;                                            // Next element of the array
+        }
+        finalText[i] = document.createElement('br');        // Create <br> element, add it
+    }
+    return finalText;
+}
+
+function createInput(){
+    var div = createDiv();
+    var input = document.createElement('input');
+    var button = document.createElement('button');
+
+    div.setAttribute("class", "flexContainer");
+    div.setAttribute("id", "decisionButtonDiv");
+    input.setAttribute("type", "text");
+    input.setAttribute("class", "decisionInput");
+    button.setAttribute("class", "decisionButton");
+    button.setAttribute("onclick", "nextDecision()");
+    button.textContent = "Enter";
+
+    div.append(input);
+    div.append(button);
+
+    return div;
+}
+
+function startGame(){
+    var outerDiv = createDiv();
+    var texto = createParagraph(enredo[0][1]);
+
+    outerDiv.setAttribute("id", "scrollItem");
+    outerDiv.setAttribute("class", "flexContainer");
+    for(var i = 0; i < texto.length; i++){
+        outerDiv.append(texto[i]);
+    }
+    var input = createInput();
+    outerDiv.append(input);
+    gameDiv.insertBefore(outerDiv, gameDiv.childNodes[0]);
+}
+
+function nextDecision(){
+    var choiceInput = document.getElementsByClassName("decisionInput")[0];
+    var gameEnding = false;
+    var check = false;
+    var endFunction = false;
+
+    for(var i = 0; i < enredo.length && check == false; i++){
+        if(caminho == enredo[i][0]){
+            for(var j = 0; j < enredo[i][2].length && check == false; j++){
+                if(choiceInput.value == enredo[i][2][j]){
+                    caminho += choiceInput.value;
+                    check = true;
+                }
+            }
+        }
+        if(i == enredo.length - 1 && check == false){
+            endFunction = true;
+        }
+    }
+
+    for(var i = 0; i < enredo.length; i++){
+        if(caminho == enredo[i][0] && endFunction == false){
+            if(enredo[i][2] == 'final bom' || enredo[i][2] == 'final ruim' || enredo[i][2] == 'final real'){
+                gameEnding = true;
+            }
+            var outerDiv = createDiv();
+            var texto = createParagraph(enredo[i][1]);
+        
+            outerDiv.setAttribute("id", "scrollItem");
+            outerDiv.setAttribute("class", "flexContainer");
+            for(var i = 0; i < texto.length; i++){
+                outerDiv.append(texto[i]);
+            }
+            if(gameEnding == false){
+                var input = createInput();
+                outerDiv.append(input);
+            }
+            gameDiv.insertBefore(outerDiv, gameDiv.childNodes[0]);
+            endFunction = true;
+        }
+    }
+}
+
+function cleanSlate(){
+    caminho = "0";
+    count = gameDiv.childElementCount - 1;
+    for(var i = 0; i < count; i++){
+        gameDiv.children[0].remove();
+    }
+}
 
 var enredo = [
-
-            ['0', nomeJogador + ", você se encontra em uma sala fria e escura. Há uma porta e um console em seu campo de visão. " + 
+            // Caminho, narrativa, lógica
+            ['0', "Você se encontra em uma sala fria e escura. Há uma porta e um console em seu campo de visão. " + 
             "Infelizmente, não há muitas opções disponíveis no momento.\n\n" +
-            "1 - Tento abrir a porta\n"],
+            "1 - Tento abrir a porta\n", "1"],
 
             ['01', "A porta se abre com um ruído estridente. Ela, assim como o chão, é feita de ferro. Você percebe que seus dedos, sua mão " + 
             "e seu braço estão cobertos por algum tipo de resíduo fibroso. O lado de fora da sala é um corredor. Ainda é escuro.\n\n" + 
             "1 - Sigo à direita, de onde sinto uma leve onda de calor\n" +
-            "2 - Vou para a esquerda, onde vejo uma leve luz vermelha piscando no final de um longo corredor"],
+            "2 - Vou para a esquerda, onde vejo uma leve luz vermelha piscando no final de um longo corredor", "12"],
 
             ['011', "Na medida em que você anda, menos você enxerga, mais você sua. Pouco a pouco um ruído cresce em volume. " +
             "Logo em seguida, você se encontra numa escuridão completa, o ruído e o calor são as únicas coisas que você consegue sentir. " +
@@ -30,13 +143,13 @@ var enredo = [
             "O fogo ilumina o ambiente. Corpos de cientistas cobertos por sangue, gosma e teias grossas cobrem o chão. " + 
             "Já não é possível voltar, o fogo bloqueia seu caminho. Em frente, há duas opções.\n\n" +
             "1 - Vou à esquerda, onde o ruído é ensurdecedor e o rastro de destruição continua\n" +
-            "2 - Viro à direita, onde o calor é quase insuportável mas não há sinal de destruição"],
+            "2 - Viro à direita, onde o calor é quase insuportável mas não há sinal de destruição", "12"],
 
             ['012', "Depois de uma longa caminhada, você se encontra numa sala estreita, com inúmeras portas de titânio redonas e fechadas. Você percebe que a última " +
             "porta, a cerca de 50 metros de distância, está aberta. Você reconhece esse lugar, é a saída emergencial, e as portas " +
             "fechadas significam que as cápsulas de fuga foram usadas. Resta uma.\n\n" +
             "1 - Fujo na última cápsula de fuga\n" +
-            "2 - Exploro a sala"],
+            "2 - Exploro a sala", "12"],
 
             ['0111', "Poucos passos depois de virar à esquerda, você se depara com um monstro alienígena. " +
             "Em questão de segundos, você vai de ser humano a lanche.", 'final ruim'],
@@ -48,7 +161,7 @@ var enredo = [
             "Há, também, um console na parede do seu outro lado.\n\n" +
             "1 - Aperto o botão\n" +
             "2 - Tento tocar no casulo\n" +
-            "3 - Uso o console"],
+            "3 - Uso o console", "123"],
 
             ['0121', "Você entra na última cápsula de fuga, seus olhos levam alguns segundos para se ajustar à forte luz branca. " +
             "O interior da cápsula é pequeno e há uma única janela. Uma voz robótica fala:\n" +
@@ -90,7 +203,7 @@ var enredo = [
             "Você percebe que o ruído voltou a crescer enquanto você lia o console. Vindo em alta velocidade do corredor de onde você veio, há um " +
             "monstro alienígena.\n\n" +
             "1 - Tento enfrentar o monstro, que tem 2 metros de altura e garras extremamente afiadas\n" +
-            "2 - Aperto o botão que está do meu lado"],
+            "2 - Aperto o botão que está do meu lado", "12"],
 
             ['011231', "Sua coragem é louvável, porém inútil. O monstro te mata e usa seus ossos para limpar os dentes.", 'final ruim'],
 
@@ -101,59 +214,9 @@ var enredo = [
        
             ];
 
-function proximaMensagem(){
-    var escolha;
-    for (var i = 0; i < enredo.length; i++){
-        if(enredo[i][0] == caminho){
-            if(enredo[i][2] == 'final bom'){
-                alert(enredo[i][1]);
-                return -1;
-            }
-            if(enredo[i][2] == 'final ruim'){
-                alert(enredo[i][1]);
-                return -2;
-            }
-            if(enredo[i][2] == 'final real'){
-                alert(enredo[i][1]);
-                return -3;
-            }
-            else{
-                escolha = prompt(enredo[i][1]);
-                escolha.toString();
-                if(escolha == '1' || escolha == '2' || escolha == '3' || escolha == '4'){
-                    caminho += escolha;
-                    return 1;
-                }
-                else{
-                    alert("Opção inválida.");
-                    proximaMensagem();
-                }
-            }
-        }
-    }
-    return -420;
-}
+startUp();
 
 function jogo(){
-    caminho = '0';
-    if(nomeJogador == undefined){
-        receberDados();
-    }
-    var i = 0;
-    while(i >= 0){
-        i = proximaMensagem();
-        if(i == -1){
-            alert("Parabéns, " + nomeJogador +", você ganhou, mas o mistério continua...");
-        }
-        if(i == -2){
-            alert("Derrota!");
-        }
-        if(i == -3){
-            alert("Parabéns, " + nomeJogador + ", você encontrou o final verdadeiro do jogo, mas o mistério continua...");
-        }
-        if(i == -420){
-            alert("Ops! Ou houve algum erro durante a execução do programa, ou você fez algo que não devia!");
-        }
-    }
-    alert("Fim de jogo.");
+    cleanSlate();
+    startGame();
 }

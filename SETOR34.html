@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./jogo.js"></script>
     <title>Setor 34</title>
     <link rel="stylesheet" href="./style.css">
     
 </head>
 <body>
-    <div class="main">
-        <button id="startButton" onclick="jogo()">ENTER SECTOR 34</button>
-        <div class="texto">
-            <p>Horas atrás um time de cientistas foi chamado ao setor 34 do laboratório central da colônia 55C.</p>
-            <br>
-            <p>Esse setor é famoso por suas contribuições no campo de xenomorfologia, mas principalmente por seus segredos...</p>
+    <div id="megaContainer" class="flexContainer">
+        <div id="topContainer" class="flexContainer">
+            <button id="startButton" onclick="jogo()">ENTER SECTOR 34</button>
+        </div>
+        <div id="bottomContainer" class="flexContainer">
+            <div id="scrollItem" class="flexContainer">
+                <br>
+                <p>Horas atrás um time de cientistas foi chamado ao setor 34 do laboratório central da colônia 55C.</p>
+                <br>
+                <p>Esse setor é famoso por suas contribuições no campo de xenomorfologia, mas principalmente por seus segredos...</p>
+                <br>
+            </div>
         </div>
     </div>
+    <script src="./jogo.js"></script>
 </body>
 </html>
