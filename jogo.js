@@ -2,9 +2,19 @@ var nomeJogador;
 var caminho = '0';
 var gameDiv = document.getElementById('bottomContainer');
 var preText = document.getElementById('scrollItem');
+var background = document.getElementById('megaContainer');
 
-function startUp(){
-    alert("Recomendamos que jogue em modo tela-cheia (F11). Boa sorte.");
+function imageOption(){
+    return document.getElementsByName('imageOptions')[0].checked;
+}
+
+function updateBackground(){
+    if(imageOption() == true){
+        background.style.backgroundImage = "url(https://wallpapercave.com/wp/wp4469551.jpg)";
+    }
+    else{
+        background.style.backgroundImage = "";
+    }
 }
 
 function createDiv(){
@@ -75,6 +85,23 @@ function startGame(){
     gameDiv.insertBefore(outerDiv, gameDiv.childNodes[0]);
 }
 
+function clearButton(){
+    var button = document.getElementsByClassName("decisionButton")[0];
+    button.setAttribute("onclick", "");
+    button.textContent = "";
+    button.style.cursor = "default";
+    button.style.backgroundColor = "rgb(92,24,24)"
+}
+
+function fadeText(){
+    var outerDiv = document.getElementById("scrollItem");
+    for (var i = 0; i < outerDiv.childElementCount; i++){
+        if (outerDiv.childNodes[i].tagName == "P"){
+            outerDiv.childNodes[i].setAttribute("class", "choiceFade");
+        }
+    }
+}
+
 function nextDecision(){
     var choiceInput = document.getElementsByClassName("decisionInput")[0];
     var gameEnding = false;
@@ -90,30 +117,38 @@ function nextDecision(){
                 }
             }
         }
-        if(i == enredo.length - 1 && check == false){
+        if(i == enredo.length - 1 && check == false){       //Failsafe
             endFunction = true;
         }
     }
+
+    updateBackground();
+    clearButton();
+    fadeText();
+
+    choiceInput.setAttribute("disabled", "");
+
+    var outerDiv = createDiv();
+    outerDiv.setAttribute("id", "scrollItem");
+    outerDiv.setAttribute("class", "flexContainer");
 
     for(var i = 0; i < enredo.length; i++){
         if(caminho == enredo[i][0] && endFunction == false){
             if(enredo[i][2] == 'final bom' || enredo[i][2] == 'final ruim' || enredo[i][2] == 'final real'){
                 gameEnding = true;
+                if(enredo[i][2] == 'final ruim' && imageOption() == true){
+                    background.style.backgroundImage = "url(https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/6233d870-bb62-4bed-b6b5-a856e55827fe/d4ozy89-fefa2193-e726-4341-b9a4-b8d772bc9c59.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3sicGF0aCI6IlwvZlwvNjIzM2Q4NzAtYmI2Mi00YmVkLWI2YjUtYTg1NmU1NTgyN2ZlXC9kNG96eTg5LWZlZmEyMTkzLWU3MjYtNDM0MS1iOWE0LWI4ZDc3MmJjOWM1OS5qcGcifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6ZmlsZS5kb3dubG9hZCJdfQ.SwLck7Y5AeMfTYMfKrwFqcH_SRrJ3AMXJABIf8kdGgY)"
+                }
             }
-            var outerDiv = createDiv();
             var texto = createParagraph(enredo[i][1]);
-        
-            outerDiv.setAttribute("id", "scrollItem");
-            outerDiv.setAttribute("class", "flexContainer");
-            for(var i = 0; i < texto.length; i++){
-                outerDiv.append(texto[i]);
+            for(var j = 0; j < texto.length; j++){
+                outerDiv.append(texto[j]);
             }
             if(gameEnding == false){
                 var input = createInput();
                 outerDiv.append(input);
             }
             gameDiv.insertBefore(outerDiv, gameDiv.childNodes[0]);
-            endFunction = true;
         }
     }
 }
@@ -124,6 +159,7 @@ function cleanSlate(){
     for(var i = 0; i < count; i++){
         gameDiv.children[0].remove();
     }
+    updateBackground();
 }
 
 var enredo = [
@@ -213,8 +249,6 @@ var enredo = [
             "catastrofe, mas muitas perguntas permanecem em sua mente.", 'final real'],
        
             ];
-
-startUp();
 
 function jogo(){
     cleanSlate();
